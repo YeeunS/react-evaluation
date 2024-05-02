@@ -5,22 +5,33 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
-    <title>Shopping Cart Application</title>
+    <title>Shopping Cart</title>
 </head>
 <body>
     <div id="app" class="app-container">
         <div class="inventory-container">
             <h1>Inventory</h1>
             <ul class="inventory-list">
+                <li>
+                    <span>apple</span>
+                    <button class="qty-change" onclick="decreaseQty('apple')">-</button>
+                    <span id="qty-apple">0</span>
+                    <button class="qty-change" onclick="increaseQty('apple')">+</button>
+                    <button onclick="addToCart('apple')">Add to Cart</button>
+                </li>
+                <li>
+                    <span>peach</span>
+                    <button class="qty-change" onclick="decreaseQty('peach')">-</button>
+                    <span id="qty-peach">0</span>
+                    <button class="qty-change" onclick="increaseQty('peach')">+</button>
+                    <button onclick="addToCart('peach')">Add to Cart</button>
+                </li>
             </ul>
         </div>
         <div class="cart-container">
             <h1>Shopping Cart</h1>
-            <div class="cart-wrapper">
-                <ul class="cart-list">
-                </ul>
-                <button class="checkout-btn">Checkout</button>
-            </div>
+            <ul class="cart-list"></ul> 
+            <button class="checkout-btn">Checkout</button>
         </div>
     </div>
 
