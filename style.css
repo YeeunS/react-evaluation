@@ -7,10 +7,10 @@ body, html {
 
 .app-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     padding: 20px;
     max-width: 1200px;
-    margin: 0 auto; /* Center the app container */
+    margin: 0 auto;
 }
 
 .inventory-container, .cart-container {
@@ -39,13 +39,16 @@ li {
     margin-bottom: 10px;
 }
 
-button {
+button, .item-qty {
     padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button {
     color: white;
     background-color: #5cb85c;
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
 }
 
 button:hover {
@@ -53,29 +56,29 @@ button:hover {
 }
 
 .qty-change {
-    background-color: #f44336; /* Different color for -/+ buttons */
+    background-color: #f44336;
 }
 
 .qty-change:hover {
     background-color: #d32f2f;
 }
 
+.add-to-cart, .checkout-btn {
+    background-color: #000; /* Unified button color for actions */
+    color: white;
+}
+
+.add-to-cart:hover, .checkout-btn:hover {
+    background-color: #333;
+}
+
 .checkout-btn {
     width: 100%;
     padding: 10px 0;
     font-size: 16px;
-    background-color: #000;
-    color: white;
-    border: none;
-    border-radius: 4px;
     margin-top: 10px;
 }
 
-.checkout-btn:hover {
-    background-color: #333;
-}
-
-#qty-apple, #qty-peach {
-    min-width: 30px;
-    text-align: center;
+.item-name, .item-qty {
+    margin: 0 5px; /* Adjusted for closer spacing */
 }

@@ -1,21 +1,31 @@
 const API = (() => {
   const URL = "http://localhost:3000";
 
-  const getCart = () => fetch(`${URL}/cart`).then(res => res.json());
-  const getInventory = () => fetch(`${URL}/inventory`).then(res => res.json());
+  const getCart = () => fetch(`${URL}/cart`)
+  .then(res => res.json());
+
+  const getInventory = () => fetch(`${URL}/inventory`)
+  .then(res => res.json());
+
   const addToCart = (item) => fetch(`${URL}/cart`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(item)
-  }).then(res => res.json());
+  })
+  .then(res => res.json());
+
   const updateCart = (id, item) => fetch(`${URL}/cart/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(item)
-  }).then(res => res.json());
+  })
+  .then(res => res.json());
+
   const deleteFromCart = (id) => fetch(`${URL}/cart/${id}`, {
     method: "DELETE"
-  }).then(res => res.json());
+  })
+  .then(res => res.json());
+
   const checkout = () => getCart().then(data => 
     Promise.all(data.map(item => deleteFromCart(item.id)))
   );
@@ -74,7 +84,6 @@ const View = (() => {
 
   return { renderInventory, renderCart };
 })();
-
 
 const Controller = ((model, view) => {
   const quantities = {};
@@ -140,6 +149,7 @@ const Controller = ((model, view) => {
 })(Model, View);
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Controller.init();
+  Controller.init();
   document.querySelector(".checkout-btn").addEventListener("click", Controller.handleCheckout);
 });
+
