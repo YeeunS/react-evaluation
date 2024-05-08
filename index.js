@@ -112,15 +112,19 @@ const Controller = ((model, view) => {
     if (quantity > 0) {
       const item = model.inventory.find(item => item.id === id);
       const cartItem = model.cart.find(ci => ci.id === id);
+
       if (cartItem) {
         cartItem.quantity += quantity;
-        API.updateCart(id, cartItem).then(() => {
-          API.getCart().then(view.renderCart);
+        API.updateCart(id, cartItem).then(updatedItem => {
+          model.cart = model.cart.map(ci => ci.id === id ? updatedItem : ci);
+          view.renderCart(model.cart);
         });
       } else {
         const newItem = {...item, quantity};
-        API.addToCart(newItem).then(() => {
-          API.getCart().then(view.renderCart);
+        API.addToCart(newItem).then(addedItem => {
+          model.cart = [...model.cart, addedItem];
+          // API.getCart().then(view.renderCart);
+          view.renderCart(model.cart);
         });
       }
       quantities[id] = 0; // Reset the quantity after adding to cart
@@ -136,7 +140,9 @@ const Controller = ((model, view) => {
 
   const handleCheckout = () => {
     API.checkout().then(() => {
-      API.getCart().then(view.renderCart); // Refresh the cart view post-checkout
+      model.cart = []; 
+      // API.getCart().then(view.renderCart); // Refresh the cart view post-checkout
+      view.rendarCart(model.cart);
     });
   };
 
