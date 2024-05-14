@@ -14,10 +14,12 @@
             <ul class="inventory-list">
                 <!-- Inventory items will be dynamically populated here -->
             </ul>
-            <div class="pagination-controls">
-                <button onclick="Controller.handlePrevPage()">Prev</button>
-                <span id="page-info"></span>
-                <button onclick="Controller.handleNextPage()">Next</button>
+            <div class="pagination-container">
+                <button class="inventory__prev-btn">Prev</button>
+                <div class="inventory__pagination-pages">
+                    <!-- Pagination buttons will be dynamically populated here -->
+                </div>
+                <button class="inventory__next-btn">Next</button>
             </div>
         </div>
         <div class="cart-container">
@@ -25,7 +27,7 @@
             <ul class="cart-list">
                 <!-- Cart items will be dynamically populated here -->
             </ul>
-            <button class="checkout-btn" onclick="Controller.handleCheckout()">Checkout</button>
+            <button class="checkout-btn">Checkout</button>
         </div>
     </div>
     <script src="index.js"></script>
