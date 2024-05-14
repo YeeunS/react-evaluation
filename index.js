@@ -156,4 +156,3 @@ document.addEventListener("DOMContentLoaded", () => {
   Controller.init();
   document.querySelector(".checkout-btn").addEventListener("click", Controller.handleCheckout);
 });
-
