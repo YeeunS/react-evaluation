@@ -123,7 +123,6 @@ const Controller = ((model, view) => {
         const newItem = {...item, quantity};
         API.addToCart(newItem).then(addedItem => {
           model.cart = [...model.cart, addedItem];
-          // API.getCart().then(view.renderCart);
           view.renderCart(model.cart);
         });
       }
@@ -141,8 +140,7 @@ const Controller = ((model, view) => {
   const handleCheckout = () => {
     API.checkout().then(() => {
       model.cart = []; 
-      // API.getCart().then(view.renderCart); // Refresh the cart view post-checkout
-      view.rendarCart(model.cart);
+      view.renderCart(model.cart);
     });
   };
 
