@@ -38,20 +38,42 @@ const Model = (() => {
     #onChange = [];
     #inventory = [];
     #cart = [];
+    #currentPage = 1;
+    #itemsPerPage = 3;
 
-    get cart() { return this.#cart; }
+    get cart() { 
+      return this.#cart; 
+    }
+
     set cart(newCart) {
       this.#cart = newCart;
       this.#onChange.forEach(cb => cb());
     }
 
-    get inventory() { return this.#inventory; }
+    get inventory() { 
+      return this.#inventory.slice((this.#currentPage - 1) * this.#itemsPerPage, this.#currentPage * this.#itemsPerPage); 
+    }
+
     set inventory(newInventory) {
       this.#inventory = newInventory;
       this.#onChange.forEach(cb => cb());
     }
 
-    subscribe(cb) { this.#onChange.push(cb); }
+    get currentPage() { 
+      return this.#currentPage; 
+    }
+    set currentPage(newPage) {
+      this.#currentPage = newPage;
+      this.#onChange.forEach(cb => cb());
+    }
+
+    get totalPages() { 
+      return Math.ceil(this.#inventory.length / this.#itemsPerPage); 
+    }
+
+    subscribe(cb) { 
+      this.#onChange.push(cb); 
+    }
   }
 
   return new State();
@@ -61,8 +83,11 @@ const View = (() => {
   const inventoryList = document.querySelector(".inventory-list");
   const cartList = document.querySelector(".cart-list");
   const checkoutBtn = document.querySelector(".checkout-btn");
+  const paginationContainer = document.querySelector(".inventory__pagination-pages");
+  const prevBtn = document.querySelector(".inventory__prev-btn");
+  const nextBtn = document.querySelector(".inventory__next-btn");
 
-  const renderInventory = (inventory) => {
+  const renderInventory = (inventory, totalPages, currentPage) => {
     inventoryList.innerHTML = inventory.map(item => `
       <li>
         ${item.content} 
@@ -72,6 +97,12 @@ const View = (() => {
         <button onclick="Controller.handleAddToCart(${item.id})">Add to Cart</button>
       </li>
     `).join('');
+
+    paginationContainer.innerHTML = Array.from({ length: totalPages }, (_, i) => `
+      <button class="${i + 1 === currentPage ? 'active' : ''}" onclick="Controller.handleChangePage(${i + 1})">${i + 1}</button>
+    `).join('');
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === totalPages;
   };
 
   const renderCart = (cart) => {
@@ -86,13 +117,10 @@ const View = (() => {
 })();
 
 const Controller = ((model, view) => {
-  const quantities = {};
-
   const init = () => {
     API.getInventory().then(data => {
       model.inventory = data;
-      data.forEach(item => { quantities[item.id] = 0; });
-      view.renderInventory(model.inventory);
+      view.renderInventory(model.inventory, model.totalPages, model.currentPage);
     });
 
     API.getCart().then(data => {
@@ -101,14 +129,20 @@ const Controller = ((model, view) => {
     });
   };
 
+  const handleChangePage = (newPage) => {
+    model.currentPage = newPage;
+    view.renderInventory(model.inventory, model.totalPages, model.currentPage);
+  };
+
   const handleUpdateQuantity = (id, delta) => {
     const qtyElem = document.getElementById(`qty-${id}`);
-    quantities[id] = Math.max(0, quantities[id] + delta);
-    qtyElem.textContent = quantities[id];
+    const quantity = Math.max(0, parseInt(qtyElem.textContent) + delta);
+    qtyElem.textContent = quantity;
   };
 
   const handleAddToCart = (id) => {
-    const quantity = quantities[id];
+    const qtyElem = document.getElementById(`qty-${id}`);
+    const quantity = parseInt(qtyElem.textContent);
     if (quantity > 0) {
       const item = model.inventory.find(item => item.id === id);
       const cartItem = model.cart.find(ci => ci.id === id);
@@ -126,33 +160,38 @@ const Controller = ((model, view) => {
           view.renderCart(model.cart);
         });
       }
-      quantities[id] = 0; // Reset the quantity after adding to cart
-      document.getElementById(`qty-${id}`).textContent = '0';
+      qtyElem.textContent = '0'; // Reset the quantity after adding to cart
     }
   };
 
   const handleDeleteFromCart = (id) => {
     API.deleteFromCart(id).then(() => {
-      API.getCart().then(view.renderCart);
+      model.cart = model.cart.filter(item => item.id !== id);
+      view.renderCart(model.cart);
     });
   };
 
   const handleCheckout = () => {
     API.checkout().then(() => {
-      model.cart = []; 
-      view.renderCart(model.cart);
+      model.cart = []; // Clear the cart in the model
+      view.renderCart(model.cart); // Update the view to show an empty cart
+    }).catch(error => {
+      console.error('error', error);
+      alert('Checkout failed, try again.');
     });
   };
 
   model.subscribe(() => {
-    view.renderInventory(model.inventory);
+    view.renderInventory(model.inventory, model.totalPages, model.currentPage);
     view.renderCart(model.cart);
   });
 
-  return { init, handleUpdateQuantity, handleAddToCart, handleDeleteFromCart, handleCheckout };
+  return { init, handleUpdateQuantity, handleAddToCart, handleDeleteFromCart, handleChangePage, handleCheckout };
 })(Model, View);
 
 document.addEventListener("DOMContentLoaded", () => {
   Controller.init();
   document.querySelector(".checkout-btn").addEventListener("click", Controller.handleCheckout);
+  document.querySelector(".inventory__prev-btn").addEventListener("click", () => Controller.handleChangePage(Model.currentPage - 1));
+  document.querySelector(".inventory__next-btn").addEventListener("click", () => Controller.handleChangePage(Model.currentPage + 1));
 });
